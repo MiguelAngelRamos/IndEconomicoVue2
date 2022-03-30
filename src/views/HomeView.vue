@@ -1,13 +1,85 @@
 <template>
-  
+  <Layout>
+    <div class="form-group">
+      <label for="">
+        <h3>Selecciona un Indicador</h3>
+      </label>
+      <select v-model="indicador" class="form-select" name="indicador">
+        <option v-for="(indicador, index) of indicadoresEconomicos" :key="index">
+          {{indicador.codigo}}
+        </option>
+      </select>
+      <Spinner v-if="loading"/>
+      <!-- Indicadores informacion -->
+
+      <div class="mt-4" v-if="indicadorInfo.serie">
+        <!-- <h3> Indicador :{{ indicador }}</h3> -->
+        <div class="mt-4">
+          <h4>Nombre del Indicador: {{ indicadorInfo.nombre}}</h4>
+          <h5>Unidad de medida : {{ indicadorInfo.unidad_medida}}</h5>
+        </div>
+      </div>
+    </div>
+  </Layout>
 </template>
 
 <script>
-export default {
+import Layout from "../layout/Layout.vue";
+import Spinner from "../components/Spinner.vue";
+import { indicadoresEconomicos } from '../api/indicadores';
 
-}
+export default {
+  name: "HomeView",
+  components: {
+    Layout,
+    Spinner
+  },
+  data() {
+    return {
+      indicadorInfo: [],
+      indicadoresEconomicos: [
+        { codigo: 'uf'},
+        { codigo: 'ivp'},
+        { codigo: 'dolar'},
+        { codigo: 'dolar_intercambio'},
+        { codigo: 'euro'},
+        { codigo: 'ipc'},
+        { codigo: 'imacec'},
+        { codigo: 'tpm'},
+        { codigo: 'libra_cobre'},
+        { codigo: 'tasa_desempleo'},
+        { codigo: 'bitcoin'},
+      ],
+      indicador: '',
+      loading: false,
+      miFecha: ''
+    }
+  },
+  methods: {
+    async getIndicadores() {
+      try {
+        this.indicadorInfo = await indicadoresEconomicos(this.indicador);
+        console.log(this.indicadorInfo.serie)
+        this.loading = false; // termino de realizar la peticion
+      } catch(error) {
+        throw error;
+      }
+    }
+  },
+  created() {
+    this.getIndicadores();
+  },
+  watch: {
+    indicador() {
+      this.loading = true;
+      this.indicadorInfo = [];
+      this.getIndicadores();
+      // console.log('estoy observando los cambios en el indicador')
+      
+    }
+  }
+};
 </script>
 
 <style>
-
 </style>
