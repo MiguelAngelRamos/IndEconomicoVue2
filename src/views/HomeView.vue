@@ -15,10 +15,28 @@
       <div class="mt-4" v-if="indicadorInfo.serie">
         <!-- <h3> Indicador :{{ indicador }}</h3> -->
         <div class="mt-4">
-          <h4>Nombre del Indicador: {{ indicadorInfo.nombre}}</h4>
+          <h4>Nombre del Indicador: {{ indicadorInfo.nombre | trasnformarMayus}}</h4>
           <h5>Unidad de medida : {{ indicadorInfo.unidad_medida}}</h5>
         </div>
       </div>
+
+      <!-- tabla con la informacion del indicador seleccionado -->
+      <table v-if="indicadorInfo.serie" class="table mt-5">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr v-for="indice of indicadorInfo.serie" :key="indice.fecha">
+            <td>{{ indice.fecha | fechaFilter }}</td>
+            <td>{{indice.valor }}</td>
+          </tr>
+          
+        </tbody>
+      </table>
     </div>
   </Layout>
 </template>
@@ -59,7 +77,7 @@ export default {
     async getIndicadores() {
       try {
         this.indicadorInfo = await indicadoresEconomicos(this.indicador);
-        console.log(this.indicadorInfo.serie)
+        console.log(this.indicadorInfo.serie) // array
         this.loading = false; // termino de realizar la peticion
       } catch(error) {
         throw error;
@@ -75,9 +93,22 @@ export default {
       this.indicadorInfo = [];
       this.getIndicadores();
       // console.log('estoy observando los cambios en el indicador')
-      
+    }
+  },
+  filters: {
+    // en la version 3 no existen los filters
+    fechaFilter: function(value) {
+      // value =  indice.fecha
+      const fecha = new Date(value);
+      const formatoFecha = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()}`;
+      return formatoFecha;
+    },
+    trasnformarMayus: function(str) {
+      // str = indicadorInfo.nombre
+      return str.toUpperCase();
     }
   }
+
 };
 </script>
 
